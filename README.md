@@ -15,26 +15,26 @@ FinTrack is a personal finance manager built with Python. It helps you manage an
 
 ## Project Structure
 
-FinTrack/
-│
-├── data/
-│   └── transactions.csv         # CSV file to store transactions
-├── db/
-│   └── finance.db               # SQLite database file
-├── docs/
-│   └── README.md                # Project documentation
-├── src/
-│   ├── analysis.py              # Data analysis functions
-│   ├── database.py              # Database handling functions
-│   ├── gui.py                   # Tkinter GUI code
-│   ├── main.py                  # Main script to run the application
-│   ├── scraping.py              # Web scraping functions (optional)
-│   ├── transactions.py          # Transaction management functions
-│   └── visualization.py         # Data visualization functions
-├── tests/
-│   └── test_transactions.py     # Unit tests for transaction management
-├── requirements.txt             # Project dependencies
-└── LICENSE                      # License file
+
+### Directory and File Descriptions
+
+- **`data/`**: Contains data files used by the project. The `transactions.csv` file stores financial transactions.
+- **`db/`**: Contains the SQLite database file `finance.db` for storing and managing financial data.
+- **`docs/`**: Includes project documentation, such as this `README.md` file.
+- **`src/`**: Contains source code files for the project.
+  - **`analysis.py`**: Functions for analyzing financial data.
+  - **`database.py`**: Functions for handling database operations.
+  - **`gui.py`**: Code for the Tkinter graphical user interface.
+  - **`main.py`**: Main script to run the application.
+  - **`scraping.py`**: Functions for web scraping (optional).
+  - **`transactions.py`**: Functions for managing transactions.
+  - **`visualization.py`**: Functions for visualizing data.
+- **`tests/`**: Contains unit tests for the project. The `test_transactions.py` file includes tests for transaction management.
+- **`requirements.txt`**: Lists the Python packages and their versions required for the project.
+- **`LICENSE`**: Contains the license information for the project.
+
+This structure helps in organizing the project effectively, making it easier to navigate and maintain.
+
 
 # FinTrack Project Schedule
 
