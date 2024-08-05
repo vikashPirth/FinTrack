@@ -1,11 +1,28 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import csv
+from datetime import datetime
 
 # Constants
 CSV_FILE_PATH = '/Users/vikashpirthiani/FinTrack/data/transactions.csv'
 
 # Functions
+def validate_date(date_str):
+    """Validate the date format (DD/MM/YYYY)."""
+    try:
+        datetime.strptime(date_str, "%d/%m/%Y")
+        return True
+    except ValueError:
+        return False
+
+def validate_amount(amount_str):
+    """Validate that the amount is a number."""
+    try:
+        float(amount_str)
+        return True
+    except ValueError:
+        return False
+
 def add_transaction():
     """Add a new transaction based on user input."""
     date = date_entry.get()
@@ -13,13 +30,16 @@ def add_transaction():
     amount = amount_entry.get()
     category = category_entry.get()
 
+    # Input validation
     if not date or not description or not amount or not category:
-        messagebox.showerror("Input Error", "All fields must be filled out")
+        messagebox.showerror("Input Error", "All fields must be filled out.")
         return
 
-    try:
-        float(amount)
-    except ValueError:
+    if not validate_date(date):
+        messagebox.showerror("Input Error", "Date must be in the format DD/MM/YYYY.")
+        return
+
+    if not validate_amount(amount):
         messagebox.showerror("Input Error", "Amount must be a number.")
         return
 
@@ -55,7 +75,7 @@ def edit_transaction():
     edit_window = tk.Toplevel(root)
     edit_window.title("Edit Transaction")
 
-    labels = ["date", "description", "amount", "category"]
+    labels = ["Date", "Description", "Amount", "Category"]
     entries = {}
 
     for i, (field, value) in enumerate(zip(labels, transaction)):
@@ -66,20 +86,28 @@ def edit_transaction():
         entries[field] = entry
 
     def save_changes():
+        new_transaction = {}
         for field in labels:
             new_value = entries[field].get()
-            if new_value:
-                transaction[labels.index(field)] = new_value
+            if not new_value:
+                messagebox.showerror("Input Error", "All fields must be filled out.")
+                return
 
-        new_transaction = {labels[i]: transaction[i] for i in range(len(labels))}
-        if validate_transaction(new_transaction):
-            transactions[int(selected_item[0])] = new_transaction
-            update_transaction_in_csv(CSV_FILE_PATH, transactions)
-            populate_treeview(transactions)
-            edit_window.destroy()
-            messagebox.showinfo("Success", "Transaction updated successfully.")
-        else:
-            messagebox.showerror("Error", "Validation failed. Transaction not updated.")
+            if field == "Date" and not validate_date(new_value):
+                messagebox.showerror("Input Error", "Date must be in the format DD/MM/YYYY.")
+                return
+
+            if field == "Amount" and not validate_amount(new_value):
+                messagebox.showerror("Input Error", "Amount must be a number.")
+                return
+
+            new_transaction[field.lower()] = new_value
+
+        transactions[int(selected_item[0])] = new_transaction
+        update_transaction_in_csv(CSV_FILE_PATH, transactions)
+        populate_treeview(transactions)
+        edit_window.destroy()
+        messagebox.showinfo("Success", "Transaction updated successfully.")
 
     tk.Button(edit_window, text="Save", command=save_changes).grid(row=len(labels), column=0, columnspan=2)
 
@@ -108,16 +136,6 @@ def update_transaction_in_csv(file_path, transactions):
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(transactions)
-
-def validate_transaction(transaction):
-    """Validate the transaction data."""
-    try:
-        if 'amount' in transaction and float(transaction['amount']) < 0:
-            raise ValueError("Amount cannot be negative")
-        return True
-    except ValueError as e:
-        messagebox.showerror("Validation error", str(e))
-        return False
 
 def load_transactions_from_csv(file_path):
     """Load transactions from the CSV file."""
@@ -161,7 +179,7 @@ def create_gui():
     root.title("Transaction Manager")
 
     # Create and place widgets
-    tk.Label(root, text="Date").grid(row=0, column=0, sticky="ew", padx=10, pady=5)
+    tk.Label(root, text="Date (DD/MM/YYYY)").grid(row=0, column=0, sticky="ew", padx=10, pady=5)
     global date_entry
     date_entry = tk.Entry(root)
     date_entry.grid(row=0, column=1, sticky="ew", padx=10, pady=5)
@@ -188,10 +206,8 @@ def create_gui():
     global transaction_tree
     columns = ("date", "description", "amount", "category")
     transaction_tree = ttk.Treeview(root, columns=columns, show='headings')
-    transaction_tree.heading("date", text="Date")
-    transaction_tree.heading("description", text="Description")
-    transaction_tree.heading("amount", text="Amount")
-    transaction_tree.heading("category", text="Category")
+    for col in columns:
+        transaction_tree.heading(col, text=col.capitalize())
     transaction_tree.grid(row=5, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
 
     edit_button = tk.Button(root, text="Edit Transaction", command=edit_transaction)
